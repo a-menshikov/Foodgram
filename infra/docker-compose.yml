@@ -5,13 +5,45 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+    container_name: frontend
     volumes:
       - ../frontend/:/app/result_build/
+  
   nginx:
     image: nginx:1.19.3
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - foodgram_static_value:/var/html/backend_static/
+      - foodgram_media_value:/var/html/backend_media/
+  
+  database:
+    image: postgres:14.0-alpine
+    container_name: database
+    volumes:
+      - foodgram_db_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    volumes:
+      - foodgram_static_value:/app/backend_static/
+      - foodgram_media_value:/app/backend_media/
+    depends_on:
+      - database
+    env_file:
+      - ./.env
+
+volumes:
+  foodgram_db_data:
+  foodgram_static_value:
+  foodgram_media_value:

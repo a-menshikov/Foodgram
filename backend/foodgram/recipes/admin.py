@@ -6,11 +6,10 @@ from recipes.models import Ingredient, Tag
 class IngredientAdmin(admin.ModelAdmin):
     """Панель администратора для ингредиентов."""
     list_display = (
-        'id',
         'name',
         'measurement_unit',
     )
-    list_filter = ('measurement_unit', )
+    list_filter = ('name', )
     list_per_page = 50
     search_fields = ('name',)
     search_help_text = ('Поиск по названию')

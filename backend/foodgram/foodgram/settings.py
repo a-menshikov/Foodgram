@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', default='3w8k0r%)b7!j8***f!u-7mvpzzi+u7(!b--g%v6kpd_wtj-l#$')
 
 DEBUG = os.getenv('DEBUG', default=False) == 'True'
 
@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
+    'colorfield',
 ]
 
 MIDDLEWARE = [

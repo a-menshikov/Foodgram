@@ -145,7 +145,6 @@ class Follow(models.Model):
         ]
 
     def __str__(self) -> str:
-        """Возвращает сообщение о подписке"""
         return f'{self.user} подписан на автора {self.following}'
 
 
@@ -173,3 +172,34 @@ class Favorite(models.Model):
         ]
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+
+    def __str__(self) -> str:
+        return f'{self.recipe} в избранном у {self.user}'
+
+
+class ShoppingList(models.Model):
+    """Список покупок."""
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='shopping_recipe',
+        on_delete=models.CASCADE
+        )
+
+    user = models.ForeignKey(
+        User,
+        related_name='shopping_user',
+        on_delete=models.CASCADE
+        )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'user', ],
+                name='unique_shopping_list'
+            )
+        ]
+        verbose_name = 'Рецепт в списке покупок'
+        verbose_name_plural = 'Рецепты в списке покупок'
+
+    def __str__(self) -> str:
+        return f'{self.recipe} в списке покупок у {self.user}'

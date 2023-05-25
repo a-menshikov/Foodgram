@@ -119,3 +119,31 @@ class TagRecipe(models.Model):
 
     def __str__(self):
         return f"{self.tag} для {self.recipe}"
+
+
+class Follow(models.Model):
+    """Модель подписки."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Фолловер'
+    )
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'following'],
+                name='follow_unique',)
+        ]
+
+    def __str__(self) -> str:
+        """Возвращает сообщение о подписке"""
+        return f'{self.user} подписан на автора {self.following}'

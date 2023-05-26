@@ -310,3 +310,27 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.following.recipes.count()
+
+
+class ShoppingCardSerializer(serializers.ModelSerializer):
+    """Сериализатор списка покупок."""
+
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image', read_only=True)
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+
+    class Meta:
+        fields = ('id', 'name', 'image', 'cooking_time')
+        model = ShoppingList
+
+    def validate(self, data):
+        if (self.context['request'].method == "POST"
+                and ShoppingList.objects.filter(
+                    user=self.context['request'].user,
+                    recipe_id=self.context['recipe_id']
+        ).exists()):
+            raise serializers.ValidationError(
+                'Уже добавлен в список покупок.'
+            )
+        return data

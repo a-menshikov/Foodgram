@@ -1,10 +1,5 @@
-from api.filters import RecipeFilter
-from api.permissions import IsAuthor
-from api.serializers import (CustomUserSerializer, FavoriteSerializer,
-                             IngredientSerializer, RecipeWriteSerializer,
-                             RecipeSerializer, TagSerializer, FollowSerializer)
-from api.viewsets import ListRetriveViewSet, ListViewSet
 from django.db.models import Exists, OuterRef, Value
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings
@@ -16,6 +11,15 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.models import User
+
+from api.filters import RecipeFilter
+from api.permissions import IsAuthor
+from api.serializers import (CustomUserSerializer, FavoriteSerializer,
+                             FollowSerializer, IngredientRecipe,
+                             IngredientSerializer, RecipeSerializer,
+                             RecipeWriteSerializer, ShoppingCardSerializer,
+                             TagSerializer)
+from api.viewsets import ListRetriveViewSet, ListViewSet
 
 
 class IngredientViewSet(ListRetriveViewSet):
@@ -175,3 +179,49 @@ def subscribe(request, user_id):
             following=following
         ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST", "DELETE"])
+@permission_classes([IsAuthenticated])
+def shopping(request, recipe_id):
+    """Добавить/удалить покупку."""
+    if request.method == "POST":
+        serializer = ShoppingCardSerializer(
+            data=request.data,
+            context={'request': request, 'recipe_id': recipe_id}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user,
+                            recipe=get_object_or_404(Recipe, id=recipe_id))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response("Ошибка введенных данных",
+                        status=status.HTTP_400_BAD_REQUEST)
+    ShoppingList.objects.get(
+        user=request.user,
+        recipe=get_object_or_404(Recipe, id=recipe_id)
+    ).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def download_shopping_cart(request):
+    """Скачать список покупок."""
+    ingredients = IngredientRecipe.objects.filter(
+        recipe__shopping_recipe__user=request.user
+    )
+    shopping_data = {}
+    for ingredient in ingredients:
+        if str(ingredient.ingredient) in shopping_data:
+            shopping_data[f'{str(ingredient.ingredient)}'] += ingredient.amount
+        else:
+            shopping_data[f'{str(ingredient.ingredient)}'] = ingredient.amount
+    filename = "shopping-list.txt"
+    content = ''
+    for ingredient, amount in shopping_data.items():
+        content += f"{ingredient} - {amount};\n"
+    response = HttpResponse(content, content_type='text/plain',
+                            status=status.HTTP_200_OK)
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(
+        filename)
+    return response

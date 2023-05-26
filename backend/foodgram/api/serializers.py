@@ -97,6 +97,8 @@ class IngredientRecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class Base64ImageField(serializers.ImageField):
+    """Поле изображения."""
+
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -108,6 +110,8 @@ class Base64ImageField(serializers.ImageField):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор рецепта."""
+
     is_favorited = serializers.BooleanField(read_only=True)
     is_in_shopping_cart = serializers.BooleanField(read_only=True)
     tags = TagSerializer(many=True)
@@ -121,6 +125,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeInputSerializer(serializers.ModelSerializer):
+    """Сериализатор рецепта для записи."""
+
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = CustomUserSerializer(

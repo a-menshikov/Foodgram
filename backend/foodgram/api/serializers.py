@@ -202,3 +202,32 @@ class RecipeInputSerializer(serializers.ModelSerializer):
             ))
         IngredientRecipe.objects.bulk_create(datas)
         return instance
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    """Сериализатор избранного."""
+
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image', read_only=True)
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+            )
+        model = Favorite
+
+    def validate(self, data):
+        if (self.context['request'].method == "POST"
+                and Favorite.objects.filter(
+                    user=self.context['request'].user,
+                    recipe_id=self.context['recipe_id']
+        ).exists()):
+            raise serializers.ValidationError(
+                'Вы уже добавили в избранное!'
+            )
+        return data

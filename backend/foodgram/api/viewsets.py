@@ -1,5 +1,4 @@
 from rest_framework import mixins, viewsets
-# написать докстринги
 
 
 class ListRetriveViewSet(
@@ -7,6 +6,7 @@ class ListRetriveViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
+    """Вьюсет только list/retrieve."""
     pass
 
 
@@ -14,4 +14,5 @@ class ListViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet
 ):
+    """Вьюсет только list."""
     pass

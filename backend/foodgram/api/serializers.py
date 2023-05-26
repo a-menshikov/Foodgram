@@ -1,20 +1,24 @@
-import re
 import base64
-from rest_framework.fields import CurrentUserDefault
+import re
 
+from django.core.files.base import ContentFile
 from djoser.serializers import UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingList, Tag)
 from rest_framework import serializers
+from rest_framework.fields import CurrentUserDefault
 from users.models import User
-from django.core.files.base import ContentFile
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            )
         model = Ingredient
 
 
@@ -30,7 +34,12 @@ class TagSerializer(serializers.ModelSerializer):
         return value
 
     class Meta:
-        fields = ('id', 'name', 'color', 'slug')
+        fields = (
+            'id',
+            'name',
+            'color',
+            'slug',
+            )
         model = Tag
 
 
@@ -38,7 +47,13 @@ class CustomUserSerializer(UserSerializer):
     """Сериализатор пользователя."""
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',)
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            )
         model = User
 
 
@@ -49,10 +64,15 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
-    )
+        )
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
+            )
         model = IngredientRecipe
 
 
@@ -64,10 +84,15 @@ class IngredientRecipeWriteSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
-    )
+        )
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
+            )
         model = IngredientRecipe
 
 
@@ -112,7 +137,9 @@ class RecipeInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         exclude = ('pub_date',)
-        read_only_fields = ('author',)
+        read_only_fields = (
+            'author',
+            )
         model = Recipe
 
     def get_is_favorited(self, obj):
@@ -127,7 +154,7 @@ class RecipeInputSerializer(serializers.ModelSerializer):
         serializer = RecipeSerializer(
             instance,
             context={'request': self.context.get('request')}
-        )
+            )
         return serializer.data
 
     def create(self, validated_data):

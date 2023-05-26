@@ -1,9 +1,3 @@
-from api.filters import RecipeFilter
-from api.permissions import IsAuthor
-from api.serializers import (CustomUserSerializer, IngredientSerializer,
-                             RecipeInputSerializer, RecipeSerializer,
-                             TagSerializer)
-from api.viewsets import ListRetriveViewSet
 from django.db.models import Exists, OuterRef, Value
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings
@@ -12,6 +6,13 @@ from recipes.models import Favorite, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from users.models import User
+
+from api.filters import RecipeFilter
+from api.permissions import IsAuthor
+from api.serializers import (CustomUserSerializer, IngredientSerializer,
+                             RecipeInputSerializer, RecipeSerializer,
+                             TagSerializer)
+from api.viewsets import ListRetriveViewSet
 
 
 class IngredientViewSet(ListRetriveViewSet):

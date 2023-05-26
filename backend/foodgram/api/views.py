@@ -1,20 +1,21 @@
+from api.filters import RecipeFilter
+from api.permissions import IsAuthor
+from api.serializers import (CustomUserSerializer, FavoriteSerializer,
+                             IngredientSerializer, RecipeWriteSerializer,
+                             RecipeSerializer, TagSerializer, FollowSerializer)
+from api.viewsets import ListRetriveViewSet, ListViewSet
 from django.db.models import Exists, OuterRef, Value
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings
 from djoser.views import UserViewSet
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingList, Tag
-from rest_framework import filters, status, permissions, viewsets
-from users.models import User
-from rest_framework.permissions import IsAuthenticated
-from api.filters import RecipeFilter
-from api.permissions import IsAuthor
-from api.serializers import (CustomUserSerializer, IngredientSerializer,
-                             RecipeInputSerializer, RecipeSerializer,
-                             TagSerializer, FavoriteSerializer)
-from api.viewsets import ListRetriveViewSet
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingList,
+                            Tag)
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from users.models import User
 
 
 class IngredientViewSet(ListRetriveViewSet):
@@ -92,7 +93,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeSerializer
-        return RecipeInputSerializer
+        return RecipeWriteSerializer
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -101,6 +102,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
+
+class ListSubscribeViewSet(ListViewSet):
+    """Список подписок пользователя."""
+    serializer_class = FollowSerializer
+    permission_classes = (IsAuthenticated,)
+    ordering = ('id',)
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.follower.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -127,4 +144,34 @@ def favorite(request, recipe_id):
         user=request.user,
         recipe=get_object_or_404(Recipe, id=recipe_id)
     ).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST", "DELETE"])
+@permission_classes([IsAuthenticated])
+def subscribe(request, user_id):
+    """Добавить/удалить подписку."""
+    try:
+        following = User.objects.get(id=user_id)
+    except Exception:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == "POST":
+        serializer = FollowSerializer(
+            data=request.data,
+            context={'request': request, 'user_id': user_id}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user, following=following)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response("Ошибка введенных данных",
+                        status=status.HTTP_400_BAD_REQUEST)
+    serializer = FollowSerializer(
+        data=request.data,
+        context={'request': request, 'user_id': user_id}
+    )
+    if serializer.is_valid(raise_exception=True):
+        Follow.objects.filter(
+            user=request.user,
+            following=following
+        ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)

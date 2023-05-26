@@ -3,8 +3,8 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserSerializer
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            ShoppingList, Tag)
+from recipes.models import (Favorite, Follow, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingList, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from users.models import User
@@ -124,7 +124,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
 
 
-class RecipeInputSerializer(serializers.ModelSerializer):
+class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сериализатор рецепта для записи."""
 
     is_favorited = serializers.SerializerMethodField()
@@ -231,3 +231,82 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 'Вы уже добавили в избранное!'
             )
         return data
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    """Упрощённый сериализатор рецепта"""
+    id = serializers.ReadOnlyField()
+    name = serializers.ReadOnlyField()
+    image = serializers.ImageField(read_only=True)
+    cooking_time = serializers.ReadOnlyField()
+
+    class Meta:
+        fields = ('id', 'name', 'image', 'cooking_time')
+        model = Recipe
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор подписок."""
+
+    email = serializers.ReadOnlyField(source='following.email')
+    id = serializers.ReadOnlyField(source='following.id')
+    username = serializers.ReadOnlyField(source='following.username')
+    first_name = serializers.ReadOnlyField(source='following.first_name')
+    last_name = serializers.ReadOnlyField(source='following.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+            )
+        model = Follow
+
+    def validate(self, data):
+        if self.context['request'].method == "POST" and Follow.objects.filter(
+                user=self.context['request'].user,
+                following_id=self.context['user_id']
+        ).exists():
+            raise serializers.ValidationError(
+                'Такая подписка уже есть.'
+            )
+        if (self.context['request'].method == "POST"
+                and self.context['request'].user.id
+                == self.context['user_id']):
+            raise serializers.ValidationError(
+                'На себя нельзя подписаться.'
+            )
+        if (self.context['request'].method == "DELETE" and not
+            Follow.objects.filter(
+                user=self.context['request'].user,
+                following_id=self.context['user_id']
+        ).exists()):
+            raise serializers.ValidationError(
+                'Такой подписки нет.'
+            )
+        return data
+
+    def get_recipes(self, obj):
+        recipes_limit = self.context['request'].query_params.get(
+            'recipes_limit'
+        )
+        queryset = obj.following.recipes.all()
+        if recipes_limit:
+            queryset = queryset[:int(recipes_limit)]
+        serializer = RecipeShortSerializer(queryset, many=True)
+        return serializer.data
+
+    def get_is_subscribed(self, obj):
+        return Follow.objects.filter(user=self.context['request'].user,
+                                     following=obj.following).exists()
+
+    def get_recipes_count(self, obj):
+        return obj.following.recipes.count()

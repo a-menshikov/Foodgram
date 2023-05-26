@@ -1,14 +1,19 @@
 from django.contrib import admin
-from recipes.models import Ingredient, Tag, Recipe, Favorite
 from django.db.models import Count, OuterRef
+
+from recipes.models import Favorite, Ingredient, Recipe, Tag
 
 
 class TagsInline(admin.TabularInline):
+    """Инлайн для редактирования тегов в рецепте."""
+
     model = Recipe.tags.through
     extra = 3
 
 
 class IngredientsInline(admin.TabularInline):
+    """Инлайн для редактирования ингредиентов в рецепте."""
+
     model = Recipe.ingredients.through
     extra = 3
 
@@ -16,13 +21,18 @@ class IngredientsInline(admin.TabularInline):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     """Панель администратора для ингредиентов."""
+
     list_display = (
         'name',
         'measurement_unit',
-    )
-    list_filter = ('name', )
+        )
+    list_filter = (
+        'name',
+        )
     list_per_page = 50
-    search_fields = ('name',)
+    search_fields = (
+        'name',
+        )
     search_help_text = ('Поиск по названию')
     actions_on_bottom = True
 
@@ -30,17 +40,26 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     """Панель администратора для тегов."""
+
     list_display = (
         'id',
         'name',
         'color',
         'slug',
-    )
-    list_filter = ('name', )
-    list_editable = ('color',)
-    prepopulated_fields = {'slug': ('name',)}
+        )
+    list_filter = (
+        'name',
+        )
+    list_editable = (
+        'color',
+        )
+    prepopulated_fields = {
+        'slug': ('name',)
+        }
     list_per_page = 50
-    search_fields = ('name',)
+    search_fields = (
+        'name',
+        )
     search_help_text = ('Поиск по имени тега')
     actions_on_bottom = True
 
@@ -48,6 +67,7 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Панель администратора для рецептов."""
+
     list_display = (
         'id',
         'name',
@@ -56,12 +76,24 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     inlines = (
         TagsInline,
-        IngredientsInline
+        IngredientsInline,
     )
-    fields = ('name', 'author', 'image', 'text', 'cooking_time',
-              'favorite_count')
-    readonly_fields = ('favorite_count',)
-    list_filter = ('author', 'name', 'tags')
+    fields = (
+        'name',
+        'author',
+        'image',
+        'text',
+        'cooking_time',
+        'favorite_count',
+        )
+    readonly_fields = (
+        'favorite_count',
+        )
+    list_filter = (
+        'author',
+        'name',
+        'tags',
+        )
 
     def get_queryset(self, request):
         return Recipe.objects.annotate(
@@ -73,6 +105,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(
         ordering='favorite_count',
         description='Количество добавлений в избранное',
-    )
+        )
     def favorite_count(self, obj):
         return obj.favorite_count

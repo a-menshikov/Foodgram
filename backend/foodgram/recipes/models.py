@@ -1,14 +1,21 @@
-from django.db import models
 from colorfield.fields import ColorField
-from users.models import User
 from django.core.validators import MinValueValidator
+from django.db import models
+from users.models import User
 
 
 class Ingredient(models.Model):
     """Ингредиент."""
-    name = models.CharField('Название ингредиента', unique=True,
-                            max_length=200)
-    measurement_unit = models.CharField('Единица измерения', max_length=200)
+
+    name = models.CharField(
+        'Название ингредиента',
+        unique=True,
+        max_length=200,
+        )
+    measurement_unit = models.CharField(
+        'Единица измерения',
+        max_length=200,
+        )
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -21,11 +28,22 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     """Тег."""
-    name = models.CharField('Название тега', unique=True,
-                            max_length=200)
-    color = ColorField('Цвет', unique=True, default='#FF0000')
-    slug = models.SlugField('Slug тега', unique=True,
-                            max_length=200)
+
+    name = models.CharField(
+        'Название тега',
+        unique=True,
+        max_length=200,
+        )
+    color = ColorField(
+        'Цвет',
+        unique=True,
+        default='#FF0000',
+        )
+    slug = models.SlugField(
+        'Slug тега',
+        unique=True,
+        max_length=200,
+        )
 
     class Meta:
         verbose_name = 'Тег'
@@ -38,41 +56,48 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     """Рецепт"""
+
     name = models.CharField(
         'Название рецепта',
         unique=True,
-        max_length=200
+        max_length=200,
         )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='recipes',
-        verbose_name="Автор рецепта"
+        verbose_name="Автор рецепта",
         )
     image = models.ImageField(
         'Фото блюда',
-        upload_to='backend-media/recipes/images/'
+        upload_to='backend-media/recipes/images/',
         )
-    text = models.TextField('Рецепт')
+    text = models.TextField(
+        'Рецепт',
+        )
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name="Ингредиенты",
-        through='IngredientRecipe'
+        through='IngredientRecipe',
         )
     tags = models.ManyToManyField(
         Tag,
         verbose_name="Теги",
-        through='TagRecipe'
+        through='TagRecipe',
         )
-    cooking_time = models.IntegerField(validators=[
-        MinValueValidator(1,
-                          "Время приготовления не может быть менее 1 минуты")
-    ],
+    cooking_time = models.IntegerField(
+        validators=[
+            MinValueValidator(1,
+                              "Время не может быть менее 1 минуты"
+                              ),
+            ],
         verbose_name="Время приготовления, мин"
-    )
+        )
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
-    )
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True,
+        )
 
     class Meta:
         ordering = ('-pub_date',)
@@ -84,13 +109,23 @@ class Recipe(models.Model):
 
 
 class IngredientRecipe(models.Model):
-    """Ингредиенты в рецепте"""
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.IntegerField(validators=[
-        MinValueValidator(1,
-                          "Количество должно быть числом более 1")
-    ])
+    """Ингредиенты в рецепте."""
+
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        )
+    amount = models.IntegerField(
+        validators=[
+            MinValueValidator(1,
+                              "Количество должно быть числом более 1"
+                              )
+            ]
+        )
 
     class Meta:
         constraints = (
@@ -106,8 +141,15 @@ class IngredientRecipe(models.Model):
 
 class TagRecipe(models.Model):
     """Связь тега и рецепта."""
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        )
 
     class Meta:
         constraints = (
@@ -128,20 +170,21 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='follower',
-        verbose_name='Фолловер'
-    )
+        verbose_name='Фолловер',
+        )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Автор'
-    )
+        verbose_name='Автор',
+        )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
-                name='unique_follow',)
+                name='unique_follow',
+                )
         ]
 
     def __str__(self) -> str:

@@ -17,15 +17,19 @@ from api.viewsets import ListRetriveViewSet
 
 class IngredientViewSet(ListRetriveViewSet):
     """Ингредиенты."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    search_fields = (
+        '^name',
+        )
 
 
 class TagViewSet(ListRetriveViewSet):
     """Теги."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
@@ -33,6 +37,7 @@ class TagViewSet(ListRetriveViewSet):
 
 class CustomUserViewSet(UserViewSet):
     """Пользователи."""
+
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
 
@@ -59,6 +64,8 @@ class CustomUserViewSet(UserViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Рецепты."""
+
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
     ordering = ('-pub_date',)

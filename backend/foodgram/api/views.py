@@ -49,11 +49,13 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
 
     def get_serializer_context(self):
+        """Получить контекст."""
         context = super().get_serializer_context()
         context["request"] = self.request
         return context
 
     def get_serializer_class(self):
+        """Получить сериализатор."""
         if self.action == "create":
             if settings.USER_CREATE_PASSWORD_RETYPE:
                 return settings.SERIALIZERS.user_create_password_retype
@@ -78,6 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering = ('-pub_date',)
 
     def get_queryset(self):
+        """Получить кверисет."""
         user = self.request.user
         if user.is_authenticated:
             return Recipe.objects.annotate(
@@ -95,19 +98,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).all()
 
     def get_serializer_class(self):
+        """Получить сериализатор."""
         if self.request.method == 'GET':
             return RecipeSerializer
         return RecipeWriteSerializer
 
     def get_permissions(self):
+        """Проверка доступа."""
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.AllowAny(),)
         return (permissions.IsAuthenticated(), IsAuthor(),)
 
     def perform_create(self, serializer):
+        """Добавить автора."""
         serializer.save(author=self.request.user)
 
     def get_serializer_context(self):
+        """Получить контекст."""
         context = super().get_serializer_context()
         context["request"] = self.request
         return context
@@ -120,10 +127,12 @@ class ListSubscribeViewSet(ListViewSet):
     ordering = ('id',)
 
     def get_queryset(self):
+        """Получить кверисет."""
         user = self.request.user
         return user.follower.all()
 
     def get_serializer_context(self):
+        """Получить контекст."""
         context = super().get_serializer_context()
         context["request"] = self.request
         return context

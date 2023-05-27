@@ -5,11 +5,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTH_USER_MODEL = 'users.User'
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='3w8k0r%)b7!j8***f!u-7mvpzzi+u7(!b--g%v6kpd_wtj-l#$')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = os.getenv('DEBUG', default=False) == 'True'
+DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = list(os.getenv('ALLOWED_HOSTS', default=['*']))
+ALLOWED_HOSTS = list(os.getenv('ALLOWED_HOSTS'))
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -165,7 +165,7 @@ def favorite(request, recipe_id):
 def subscribe(request, user_id):
     """Добавить/удалить подписку."""
     try:
-        following = User.objects.get(id=user_id)
+        following = get_object_or_404(User, id=user_id)
     except Exception:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == "POST":

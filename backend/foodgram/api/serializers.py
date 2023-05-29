@@ -197,7 +197,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         for tag in tags:
             tags_lst.append(tag)
         instance.tags.set(tags_lst)
-        instance.ingredients.set([])
+        instance.ingredients.clear()
         instance.save()
         datas = []
         for ingredient in ingredients:

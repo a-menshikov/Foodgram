@@ -1,5 +1,5 @@
 from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from users.models import User
 
@@ -37,7 +37,18 @@ class Tag(models.Model):
     color = ColorField(
         'Цвет',
         unique=True,
-        default='#FF0000',
+        default='#FFFFFF',
+        # я добавил валидацию через регулярку, но насколько я понял из
+        # документации colorfield он сам валидирует поле как цвет в
+        # шестнадцатиричной системе по умолчанию. Возможно понял неправильно.
+        # Поле max_length не добавляю - думаю оно избыточно.
+        # Все комментарии, естественно, позже удалю)
+        validators=[
+            RegexValidator(
+                regex=r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                message='Некорректный формат цвета'),
+            ],
+        max_length=7,
         )
     slug = models.SlugField(
         'Slug тега',

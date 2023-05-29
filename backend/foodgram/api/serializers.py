@@ -76,18 +76,11 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
 
 
-class IngredientRecipeWriteSerializer(serializers.ModelSerializer):
+class IngredientRecipeWriteSerializer(serializers.Serializer):
     """Сериализатор ингредиентов в рецепте для записи."""
 
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
-                                            source='ingredient.id')
-
-    class Meta:
-        fields = (
-            'id',
-            'amount',
-            )
-        model = IngredientRecipe
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField(min_value=1)
 
 
 class Base64ImageField(serializers.ImageField):
@@ -167,7 +160,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             data.append(IngredientRecipe(
                 recipe=recipe,
-                ingredient=ingredient['ingredient']['id'],
+                ingredient_id=ingredient['id'],
                 amount=ingredient['amount']
             ))
         IngredientRecipe.objects.bulk_create(data)

@@ -1,12 +1,16 @@
+# видимо isort из коробки не понимает, где родные внутренние импорты,
+# а где сторонние и сваливает их в одну кучу.
+
 import base64
 import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserSerializer
-from recipes.models import (Favorite, Follow, Ingredient, IngredientRecipe,
-                            Recipe, ShoppingList, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
+
+from recipes.models import (Favorite, Follow, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingList, Tag)
 from users.models import User
 
 

@@ -147,12 +147,10 @@ def favorite(request, recipe_id):
             data=request.data,
             context={'request': request, 'recipe_id': recipe_id}
         )
-        if serializer.is_valid(raise_exception=True):
-            recipe = get_object_or_404(Recipe, id=recipe_id)
-            serializer.save(user=request.user, recipe=recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response("Некорректные данные",
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        serializer.save(user=request.user, recipe=recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     Favorite.objects.get(
         user=request.user,
         recipe=get_object_or_404(Recipe, id=recipe_id)
@@ -173,20 +171,18 @@ def subscribe(request, user_id):
             data=request.data,
             context={'request': request, 'user_id': user_id}
         )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user, following=following)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response("Ошибка введенных данных",
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user, following=following)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     serializer = FollowSerializer(
         data=request.data,
         context={'request': request, 'user_id': user_id}
     )
-    if serializer.is_valid(raise_exception=True):
-        Follow.objects.filter(
-            user=request.user,
-            following=following
-        ).delete()
+    serializer.is_valid(raise_exception=True)
+    Follow.objects.filter(
+        user=request.user,
+        following=following
+    ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -199,12 +195,10 @@ def shopping(request, recipe_id):
             data=request.data,
             context={'request': request, 'recipe_id': recipe_id}
         )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user,
-                            recipe=get_object_or_404(Recipe, id=recipe_id))
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response("Ошибка введенных данных",
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user,
+                        recipe=get_object_or_404(Recipe, id=recipe_id))
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     ShoppingList.objects.get(
         user=request.user,
         recipe=get_object_or_404(Recipe, id=recipe_id)

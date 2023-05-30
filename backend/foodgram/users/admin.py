@@ -14,11 +14,11 @@ class CustomUserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'is_active',
-        )
+    )
     list_editable = (
         'is_active',
-        )
+    )
     list_filter = (
         'email',
         'username',
-        )
+    )

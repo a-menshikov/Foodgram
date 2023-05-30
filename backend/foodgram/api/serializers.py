@@ -19,7 +19,7 @@ class IngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            )
+        )
         model = Ingredient
 
 
@@ -40,7 +40,7 @@ class TagSerializer(serializers.ModelSerializer):
             'name',
             'color',
             'slug',
-            )
+        )
         model = Tag
 
 
@@ -54,7 +54,7 @@ class CustomUserSerializer(UserSerializer):
             'username',
             'first_name',
             'last_name',
-            )
+        )
         model = User
 
 
@@ -65,7 +65,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
-        )
+    )
 
     class Meta:
         fields = (
@@ -73,7 +73,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
             'name',
             'measurement_unit',
             'amount',
-            )
+        )
         model = IngredientRecipe
 
 
@@ -134,7 +134,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         exclude = ('pub_date',)
         read_only_fields = (
             'author',
-            )
+        )
         model = Recipe
 
     def get_is_favorited(self, obj):
@@ -152,7 +152,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         serializer = RecipeSerializer(
             instance,
             context={'request': self.context.get('request')}
-            )
+        )
         return serializer.data
 
     def _add_ingredients(self, recipe, ingredients):
@@ -205,7 +205,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'cooking_time',
-            )
+        )
         model = Favorite
 
     def validate(self, data):
@@ -255,7 +255,7 @@ class FollowSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'recipes',
             'recipes_count',
-            )
+        )
         model = Follow
 
     def validate(self, data):

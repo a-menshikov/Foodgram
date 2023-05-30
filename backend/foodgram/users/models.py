@@ -10,7 +10,7 @@ class User(AbstractUser):
         db_index=True,
         max_length=254,
         unique=True,
-        )
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']

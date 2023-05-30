@@ -33,7 +33,7 @@ class IngredientViewSet(ListRetriveViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = (
         '^name',
-        )
+    )
 
 
 class TagViewSet(ListRetriveViewSet):

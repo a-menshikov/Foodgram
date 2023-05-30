@@ -25,14 +25,14 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'measurement_unit',
-        )
+    )
     list_filter = (
         'name',
-        )
+    )
     list_per_page = 50
     search_fields = (
         'name',
-        )
+    )
     search_help_text = ('Поиск по названию')
     actions_on_bottom = True
 
@@ -46,20 +46,20 @@ class TagAdmin(admin.ModelAdmin):
         'name',
         'color',
         'slug',
-        )
+    )
     list_filter = (
         'name',
-        )
+    )
     list_editable = (
         'color',
-        )
+    )
     prepopulated_fields = {
         'slug': ('name',)
-        }
+    }
     list_per_page = 50
     search_fields = (
         'name',
-        )
+    )
     search_help_text = ('Поиск по имени тега')
     actions_on_bottom = True
 
@@ -85,15 +85,15 @@ class RecipeAdmin(admin.ModelAdmin):
         'text',
         'cooking_time',
         'favorite_count',
-        )
+    )
     readonly_fields = (
         'favorite_count',
-        )
+    )
     list_filter = (
         'author',
         'name',
         'tags',
-        )
+    )
 
     def get_queryset(self, request):
         return Recipe.objects.annotate(
@@ -105,6 +105,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(
         ordering='favorite_count',
         description='Количество добавлений в избранное',
-        )
+    )
     def favorite_count(self, obj):
         return obj.favorite_count

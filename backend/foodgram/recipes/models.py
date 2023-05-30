@@ -43,7 +43,7 @@ class Tag(models.Model):
             RegexValidator(
                 regex=r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
                 message='Некорректный формат цвета'),
-            ],
+        ],
         max_length=7,
     )
     slug = models.SlugField(
@@ -97,7 +97,7 @@ class Recipe(models.Model):
             MinValueValidator(1,
                               "Время не может быть менее 1 минуты"
                               ),
-            ],
+        ],
         verbose_name="Время приготовления, мин"
     )
     pub_date = models.DateTimeField(
@@ -131,7 +131,7 @@ class IngredientRecipe(models.Model):
             MinValueValidator(1,
                               "Количество должно быть числом более 1"
                               )
-            ]
+        ]
     )
 
     class Meta:
@@ -191,7 +191,7 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_follow',
-                )
+            )
         )
 
     def __str__(self) -> str:

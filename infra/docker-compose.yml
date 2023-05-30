@@ -2,9 +2,7 @@ version: '3.3'
 services:
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: menshikovas/foodgram_frontend:latest
     container_name: frontend
     volumes:
       - ../frontend/:/app/result_build/
@@ -14,6 +12,8 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+    depends_on:
+      - backend
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
@@ -30,9 +30,7 @@ services:
       - ./.env
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: menshikovas/foodgram_backend:latest
     container_name: backend
     restart: always
     volumes:

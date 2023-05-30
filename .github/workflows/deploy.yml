@@ -66,37 +66,38 @@ jobs:
             push: true
             tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest 
 
-  # deploy:
-  #     runs-on: ubuntu-latest
-  #     needs: build_and_push_to_docker_hub
-  #     steps:
-  #     - name: executing remote ssh commands to deploy
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.SSH_KEY }}
-  #         script: |
-  #           sudo docker compose down
-  #           sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/api_yamdb:latest
-  #           rm .env
-  #           touch .env
-  #           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
-  #           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-  #           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-  #           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-  #           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-  #           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-  #           echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-  #           echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-  #           echo DEBUG=${{ secrets.DEBUG }} >> .env
-  #           sudo docker compose up -d
-  #           sudo docker compose exec -T web python manage.py migrate
-  #           sudo docker compose exec -T web python manage.py collectstatic --no-input
+  deploy:
+      runs-on: ubuntu-latest
+      needs: frontend_build_and_push_to_docker_hub
+      steps:
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker compose down
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+            rm .env
+            touch .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+            echo DEBUG=${{ secrets.DEBUG }} >> .env
+            sudo docker compose up -d
+            sudo docker compose exec -T backend python manage.py migrate
+            sudo docker compose exec -T backend python manage.py collectstatic --no-input
 
   send_message:
     runs-on: ubuntu-latest
-    needs: frontend_build_and_push_to_docker_hub
+    needs: deploy
     steps:
     - name: send message
       uses: appleboy/telegram-action@master

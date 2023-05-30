@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Exists, OuterRef, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -19,7 +20,8 @@ from api.serializers import (CustomUserSerializer, FavoriteSerializer,
 from api.viewsets import ListRetriveViewSet, ListViewSet
 from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingList,
                             Tag)
-from users.models import User
+
+User = get_user_model()
 
 
 class IngredientViewSet(ListRetriveViewSet):

@@ -1,6 +1,3 @@
-# видимо isort из коробки не понимает, где родные внутренние импорты,
-# а где сторонние и сваливает их в одну кучу.
-
 import base64
 import re
 
@@ -187,11 +184,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get('cooking_time',
                                                    instance.cooking_time)
         ingredients = validated_data.pop('ingredientinrecipe_set')
-        tags = validated_data.pop('tags')
-        tags_lst = []
-        for tag in tags:
-            tags_lst.append(tag)
-        instance.tags.set(tags_lst)
+        instance.tags.set(validated_data.pop('tags'))
         instance.ingredients.clear()
         instance.save()
         self._add_ingredients(instance, ingredients)

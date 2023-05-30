@@ -47,6 +47,8 @@ class TagSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(UserSerializer):
     """Сериализатор пользователя."""
 
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         fields = (
             'email',
@@ -54,8 +56,15 @@ class CustomUserSerializer(UserSerializer):
             'username',
             'first_name',
             'last_name',
+            'is_subscribed',
         )
         model = User
+
+    def get_is_subscribed(self, obj):
+        """Проверить подписку."""
+        user = self.context['request'].user
+        return user.is_authenticated and user.follower.filter(
+            following=obj).exists()
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):

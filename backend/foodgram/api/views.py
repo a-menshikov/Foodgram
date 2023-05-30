@@ -49,6 +49,7 @@ class CustomUserViewSet(UserViewSet):
 
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_serializer_context(self):
         """Получить контекст."""

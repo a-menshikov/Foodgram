@@ -24,26 +24,47 @@ jobs:
       run: |
         python -m flake8
 
-  # build_and_push_to_docker_hub: pip install -r api_yamdb/requirements.txt
-  #     name: Push Docker image to Docker Hub
-  #     runs-on: ubuntu-latest
-  #     needs: tests
-  #     steps:
-  #       - name: Check out the repo
-  #         uses: actions/checkout@v2 
-  #       - name: Set up Docker Buildx
-  #         uses: docker/setup-buildx-action@v1 
-  #       - name: Login to Docker 
-  #         uses: docker/login-action@v1 
-  #         with:
-  #           username: ${{ secrets.DOCKER_USERNAME }}
-  #           password: ${{ secrets.DOCKER_PASSWORD }}
-  #       - name: Push to Docker Hub
-  #         uses: docker/build-push-action@v2 
-  #         with:
-  #           context: ./api_yamdb
-  #           push: true
-  #           tags: ${{ secrets.DOCKER_USERNAME }}/api_yamdb:latest 
+  backend_build_and_push_to_docker_hub:
+      name: Push Backend Docker image to Docker Hub
+      runs-on: ubuntu-latest
+      needs: tests
+      steps:
+        - name: Check out the repo
+          uses: actions/checkout@v2 
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v1 
+        - name: Login to Docker 
+          uses: docker/login-action@v1 
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+        - name: Push to Docker Hub
+          uses: docker/build-push-action@v2 
+          with:
+            context: ./foodgram/backend
+            push: true
+            tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+  
+  frontend_build_and_push_to_docker_hub:
+      name: Push Frontend Docker image to Docker Hub
+      runs-on: ubuntu-latest
+      needs: backend_build_and_push_to_docker_hub
+      steps:
+        - name: Check out the repo
+          uses: actions/checkout@v2 
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v1 
+        - name: Login to Docker 
+          uses: docker/login-action@v1 
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+        - name: Push to Docker Hub
+          uses: docker/build-push-action@v2 
+          with:
+            context: ./foodgram/frontend
+            push: true
+            tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest 
 
   # deploy:
   #     runs-on: ubuntu-latest
@@ -75,8 +96,7 @@ jobs:
 
   send_message:
     runs-on: ubuntu-latest
-    # needs: deploy
-    needs: tests
+    needs: frontend_build_and_push_to_docker_hub
     steps:
     - name: send message
       uses: appleboy/telegram-action@master

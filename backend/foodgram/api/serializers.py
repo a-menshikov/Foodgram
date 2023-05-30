@@ -54,16 +54,8 @@ class CustomUserSerializer(UserSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed',
         )
         model = User
-
-    def get_is_subscribed(self, obj):
-        """Проверить статус подписки."""
-        if self.context['request'].user.is_authenticated:
-            return Follow.objects.filter(user=self.context['request'].user,
-                                         author=obj).exists()
-        return False
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):

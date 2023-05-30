@@ -191,7 +191,7 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_follow',
-            )
+            ),
         )
 
     def __str__(self) -> str:
@@ -218,7 +218,7 @@ class Favorite(models.Model):
             models.UniqueConstraint(
                 fields=['recipe', 'user', ],
                 name='unique_favorite'
-            )
+            ),
         )
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
@@ -246,7 +246,7 @@ class ShoppingList(models.Model):
             models.UniqueConstraint(
                 fields=['recipe', 'user', ],
                 name='unique_shopping_list'
-            )
+            ),
         )
         verbose_name = 'Рецепт в списке покупок'
         verbose_name_plural = 'Рецепты в списке покупок'

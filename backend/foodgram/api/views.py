@@ -154,6 +154,11 @@ def favorite(request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         serializer.save(user=request.user, recipe=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    serializer = FavoriteSerializer(
+            data=request.data,
+            context={'request': request, 'recipe_id': recipe_id}
+        )
+    serializer.is_valid(raise_exception=True)
     Favorite.objects.filter(
         user=request.user,
         recipe=get_object_or_404(Recipe, id=recipe_id)
@@ -202,6 +207,11 @@ def shopping(request, recipe_id):
         serializer.save(user=request.user,
                         recipe=get_object_or_404(Recipe, id=recipe_id))
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    serializer = ShoppingCardSerializer(
+            data=request.data,
+            context={'request': request, 'recipe_id': recipe_id}
+    )
+    serializer.is_valid(raise_exception=True)
     ShoppingList.objects.filter(
         user=request.user,
         recipe=get_object_or_404(Recipe, id=recipe_id)

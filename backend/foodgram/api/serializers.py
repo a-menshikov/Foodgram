@@ -227,6 +227,14 @@ class FavoriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Вы уже добавили в избранное!'
             )
+        if (self.context['request'].method == "DELETE" and not
+            Favorite.objects.filter(
+                user=self.context['request'].user,
+                recipe_id=self.context['recipe_id']
+        ).exists()):
+            raise serializers.ValidationError(
+                'Этот рецепт не в избранном.'
+            )
         return data
 
 
@@ -334,5 +342,13 @@ class ShoppingCardSerializer(serializers.ModelSerializer):
         ).exists()):
             raise serializers.ValidationError(
                 'Уже добавлен в список покупок.'
+            )
+        if (self.context['request'].method == "DELETE" and not
+            ShoppingList.objects.filter(
+                user=self.context['request'].user,
+                recipe_id=self.context['recipe_id']
+        ).exists()):
+            raise serializers.ValidationError(
+                'Этого рецепта нет в списке покупок.'
             )
         return data

@@ -146,6 +146,26 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
         model = Recipe
 
+    def validate(self, attrs):
+        """Валидация данных."""
+        tags = self.initial_data.get('tags')
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_id_list = []
+        for ingredient in ingredients:
+            ingredients_id_list.append(ingredient.get('id'))
+        if not tags:
+            raise serializers.ValidationError(
+                'У рецепта должен быть хотя бы один тег.')
+        if not ingredients:
+            raise serializers.ValidationError(
+                'В рецепте должен быть хотя бы один ингредиент.')
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError('Теги не должны повторяться.')
+        if len(ingredients_id_list) != len(set(ingredients_id_list)):
+            raise serializers.ValidationError('Ингредиенты не должны '
+                                              'повторяться.')
+        return attrs
+
     def get_is_favorited(self, obj):
         """Проверить на избранное."""
         return Favorite.objects.filter(user=self.context['request'].user,

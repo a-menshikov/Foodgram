@@ -5,12 +5,13 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings
 from djoser.views import UserViewSet
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.filters import RecipeFilter
+from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsAuthor
 from api.serializers import (CustomUserSerializer, FavoriteSerializer,
                              FollowSerializer, IngredientRecipe,
@@ -30,10 +31,8 @@ class IngredientViewSet(ListRetriveViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
-    search_fields = (
-        '^name',
-    )
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_class = IngredientFilter
 
 
 class TagViewSet(ListRetriveViewSet):
